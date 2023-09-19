@@ -3,11 +3,19 @@
 using namespace std;
 
 struct Conta {
-    int numConta;
     string nomeTitular;
-    char senha[4];
+    int numConta;
+    int senha;
     double saldo;
 };
+
+bool verificaSenha(Conta contas[], int senha, int posicao) {
+    if (contas[posicao].senha == senha) {
+        return true;
+    } else {
+        return false;
+    }
+}
 
 void criarConta(Conta contas[], int count) {
     cout << "Informe o número da conta: " << endl;
@@ -20,8 +28,26 @@ void criarConta(Conta contas[], int count) {
     cin >> contas[count].saldo;
 }
 
-double consultarSaldo() {
+double consultarSaldo(int numeroContas, Conta contas[]) {
+    int resposta, senha;
 
+    cout << "Digite o número da conta: ";
+    cin >> resposta;
+
+    for (int i = 0; i < numeroContas; i++) {
+        if (contas[i].numConta == resposta) {
+            cout << "Digite a senha: ";
+            cin >> senha;
+
+            while (!verificaSenha(contas, senha, i)) {
+                cout << "Senha errada, tente novamente: ";
+                cin >> senha;
+                verificaSenha(contas, senha, i);
+            }
+
+            return contas[i].saldo;
+        }
+    }
 }
 
 int main() {
@@ -48,8 +74,9 @@ int main() {
         } else if (escolha == 3) {
 
         } else if (escolha == 4) {
-
+            cout << consultarSaldo(numeroContas, contas) << endl;
         }
     } while (escolha != 5);
+
     return 0;
 }

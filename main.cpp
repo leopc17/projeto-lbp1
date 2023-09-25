@@ -7,9 +7,11 @@ struct Conta {
     int numeroConta;
     int senha;
     double saldo;
+    double valorTotalSaque;
+    double valorTotalDeposito;
 };
 
-int retornaIndice(Conta contas[], int quantidadeContas, int numeroConta) {
+int encontrarConta(Conta contas[], int quantidadeContas, int numeroConta) {
     for (int i = 0; i < quantidadeContas; i++) {
         if (contas[i].numeroConta == numeroConta) {
             return i;
@@ -28,15 +30,38 @@ bool verificaSenha(Conta contas[], int senha, int indiceConta) {
 }
 
 void criarConta(Conta contas[], int quantidadeContas) {
+    int numeroConta;
+
     cout << "Informe o número da conta: ";
-    cin >> contas[quantidadeContas].numeroConta;
-    cout << "Informe o nome do titular: ";
-    cin >> contas[quantidadeContas].nomeTitular;
-    cout << "Informe uma senha: ";
-    cin >> contas[quantidadeContas].senha;
-    cout << "Informe o saldo inicial da conta: ";
-    cin >> contas[quantidadeContas].saldo;
-    cout << endl;
+    cin >> numeroConta;
+
+    bool contaDisponivel;
+
+    if (encontrarConta(contas, quantidadeContas, numeroConta) >= 0) {
+        contaDisponivel = false;
+    } else {
+        contaDisponivel = true;
+    }
+
+    if (contaDisponivel) {
+        contas[quantidadeContas].numeroConta = numeroConta;
+
+        cout << "Informe o primeiro nome do titular: ";
+        cin >> contas[quantidadeContas].nomeTitular;
+
+        cout << "Informe uma senha: ";
+        cin >> contas[quantidadeContas].senha;
+
+        cout << "Informe o saldo inicial da conta: ";
+        cin >> contas[quantidadeContas].saldo;
+
+        contas[quantidadeContas].valorTotalSaque = 0;
+        contas[quantidadeContas].valorTotalDeposito = 0;
+
+        cout << endl;
+    } else {
+        cout << "O número da conta escolhido está indisponível." << endl;
+    }
 }
 
 void depositar(Conta contas[], int quantidadeContas) {
@@ -46,7 +71,7 @@ void depositar(Conta contas[], int quantidadeContas) {
     cout << "Digite o número da conta: ";
     cin >> numeroConta;
 
-    int indiceConta = retornaIndice(contas, quantidadeContas, numeroConta);
+    int indiceConta = encontrarConta(contas, quantidadeContas, numeroConta);
 
     cout << "Digite a senha: ";
     cin >> senha;
@@ -58,8 +83,9 @@ void depositar(Conta contas[], int quantidadeContas) {
         cin >> valor;
 
         contas[indiceConta].saldo += valor;
+        contas[indiceConta].valorTotalDeposito += valor;
 
-        cout << endl << "Você depositou: " << contas[indiceConta].saldo << " R$" << endl << endl;
+        cout << endl << "Você depositou: " << valor << " R$" << endl << endl;
     } else {
         cout << endl << "Senha incorreta." << endl << endl;
     }
@@ -72,7 +98,7 @@ void sacar(Conta contas[], int quantidadeContas) {
     cout << "Digite o número da conta: ";
     cin >> numeroConta;
 
-    int indiceConta = retornaIndice(contas, quantidadeContas, numeroConta);
+    int indiceConta = encontrarConta(contas, quantidadeContas, numeroConta);
 
     cout << "Digite a senha: ";
     cin >> senha;
@@ -84,8 +110,9 @@ void sacar(Conta contas[], int quantidadeContas) {
         cin >> valor;
 
         contas[indiceConta].saldo -= valor;
+        contas[indiceConta].valorTotalSaque += valor;
 
-        cout << endl << "Você sacou: " << contas[indiceConta].saldo << " R$" << endl << endl;
+        cout << endl << "Você sacou: " << valor << " R$" << endl << endl;
     } else {
         cout << endl << "Senha incorreta." << endl << endl;
     }
@@ -99,7 +126,7 @@ void transferir(Conta contas[], int quantidadeContas) {
     cout << "Digite o número da conta: ";
     cin >> numeroConta;
 
-    int indiceConta = retornaIndice(contas, quantidadeContas, numeroConta);
+    int indiceConta = encontrarConta(contas, quantidadeContas, numeroConta);
 
     cout << "Digite a senha: ";
     cin >> senha;
@@ -113,7 +140,7 @@ void transferir(Conta contas[], int quantidadeContas) {
         cout << "Digite o valor: ";
         cin >> valor;
 
-        int indiceContaDestino = retornaIndice(contas, quantidadeContas, numeroContaDestino);
+        int indiceContaDestino = encontrarConta(contas, quantidadeContas, numeroContaDestino);
 
         contas[indiceContaDestino].saldo += valor;
         contas[indiceConta].saldo -= valor;
@@ -130,7 +157,7 @@ void consultarSaldo(Conta contas[], int quantidadeContas) {
     cout << "Digite o número da conta: ";
     cin >> numeroConta;
 
-    int indiceConta = retornaIndice(contas, quantidadeContas, numeroConta);
+    int indiceConta = encontrarConta(contas, quantidadeContas, numeroConta);
 
     cout << "Digite a senha: ";
     cin >> senha;
@@ -143,6 +170,37 @@ void consultarSaldo(Conta contas[], int quantidadeContas) {
         cout << endl << "Senha incorreta." << endl << endl;
     }
 }
+
+double** criar_matriz(int m, int n) {
+    double **matriz;
+
+    matriz = new double*[m];
+
+    for (int i = 0; i < m; i++) {
+        matriz[i] = new double[n];
+    }
+
+    return matriz;
+}
+
+void ler_matriz(Conta contas[],double **mat, int lin){
+    for(int i = 0; i < lin; i++){
+        mat[i][0] = contas[i].numeroConta;
+        mat[i][1] = contas[i].saldo;
+        mat[i][2] = contas[i].valorTotalSaque;
+        mat[i][3] = contas[i].valorTotalDeposito;
+    }
+}
+
+void imprimir_matriz(double** mat, int lin, int col){
+    for(int i=0; i<lin; i++){
+        for(int j=0; j<col; j++){
+            cout<<mat[i][j]<<"                      ";
+        }
+        cout<<endl;
+    }
+}
+
 
 int main() {
     Conta *contas = new Conta[50];
@@ -174,6 +232,19 @@ int main() {
             consultarSaldo(contas, quantidadeContas);
         }
     } while (escolha != 6);
+
+    cout << "Tabela de informações dos usuários: " << endl;
+
+    double **matriz = criar_matriz(quantidadeContas, 4);
+    ler_matriz(contas, matriz, quantidadeContas);
+
+    cout << "----------------------------------------------------------------------------------" << endl;
+    cout << "Número da conta | Saldo da conta | Valor total de saque | Valor total de depósito" << endl;
+    cout << "----------------------------------------------------------------------------------" << endl;
+
+    imprimir_matriz(matriz, quantidadeContas, 4);
+
+    cout << matriz[2][1];
 
     return 0;
 }

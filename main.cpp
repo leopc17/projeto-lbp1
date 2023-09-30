@@ -244,7 +244,5 @@ int main() {
 
     imprimir_matriz(matriz, quantidadeContas, 4);
 
-    cout << matriz[2][1];
-
     return 0;
 }
